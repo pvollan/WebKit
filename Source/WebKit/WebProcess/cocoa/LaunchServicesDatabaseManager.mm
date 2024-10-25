@@ -27,6 +27,7 @@
 #import "LaunchServicesDatabaseManager.h"
 
 #import "LaunchServicesDatabaseXPCConstants.h"
+#import "LogEntries.h"
 #import "Logging.h"
 #import "XPCEndpoint.h"
 #import <pal/spi/cocoa/LaunchServicesSPI.h>
@@ -53,7 +54,7 @@ void LaunchServicesDatabaseManager::handleEvent(xpc_object_t message)
 #if HAVE(LSDATABASECONTEXT)
         auto database = xpc_dictionary_get_value(message, LaunchServicesDatabaseXPCConstants::xpcLaunchServicesDatabaseKey);
 
-        RELEASE_LOG(Loading, "Received Launch Services database");
+        RELEASE_LOG(Loading, RECEIVED_LAUNCH_SERVICES_DATABASE);
 
         if (database)
             [LSDatabaseContext.sharedDatabaseContext observeDatabaseChange4WebKit:database];

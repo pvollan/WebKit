@@ -195,6 +195,7 @@ $(PROJECT_DIR)/Scripts/PreferencesTemplates/WebPreferencesKeys.cpp.erb
 $(PROJECT_DIR)/Scripts/PreferencesTemplates/WebPreferencesKeys.h.erb
 $(PROJECT_DIR)/Scripts/PreferencesTemplates/WebPreferencesStoreDefaultsMap.cpp.erb
 $(PROJECT_DIR)/Scripts/create-http-header-serialization-interface.py
+$(PROJECT_DIR)/Scripts/generate-log-entries.sh
 $(PROJECT_DIR)/Scripts/generate-https-upgrade-database.sh
 $(PROJECT_DIR)/Scripts/generate-message-receiver.py
 $(PROJECT_DIR)/Scripts/generate-serializers.py
@@ -321,6 +322,7 @@ $(PROJECT_DIR)/Shared/InspectorExtensionTypes.serialization.in
 $(PROJECT_DIR)/Shared/JavaScriptCore.serialization.in
 $(PROJECT_DIR)/Shared/LayerTreeContext.serialization.in
 $(PROJECT_DIR)/Shared/LoadParameters.serialization.in
+$(PROJECT_DIR)/Shared/LogEntries.in
 $(PROJECT_DIR)/Shared/LogStream.messages.in
 $(PROJECT_DIR)/Shared/MediaPlaybackState.serialization.in
 $(PROJECT_DIR)/Shared/Model.serialization.in
