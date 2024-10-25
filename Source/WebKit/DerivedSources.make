@@ -436,11 +436,11 @@ NOTIFICATION_ALLOW_LISTS = \
 	$(WebKit2)/Scripts/compile-sandbox.sh $@.tmp $* $(SDK_NAME) $(SANDBOX_IMPORT_DIR)
 	mv $@.tmp $@
 
-LogEntries.h : LogEntries.in
+LogEntries.h LogEntries.messages.in : LogEntries.in
 	@echo Generate log entries for $< ...
-	$(PYTHON) $(WebKit2)/Scripts/generate-log-entries.py $< $@
+	$(PYTHON) $(WebKit2)/Scripts/generate-log-entries.py $< LogEntries.h LogEntries.messages.in
 
-all : LogEntries.h
+all : LogEntries.h LogEntries.messages.in
 
 AUTOMATION_PROTOCOL_GENERATOR_SCRIPTS = \
 	$(JavaScriptCore_SCRIPTS_DIR)/cpp_generator_templates.py \

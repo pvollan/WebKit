@@ -14,15 +14,15 @@ def generate_header_file(log_entries, log_entries_header_file):
 
     return
 
-def generate_messsages_file(log_entries, log_entries_messsages_file):
+def generate_messages_file(log_entries, log_entries_messages_file):
     print("Log entries messages file:", log_entries_messages_file)
 
     with open(log_entries_messages_file, 'w') as messages_file:
-        header_file.write("messages -> LogStream NotRefCounted Stream {\n")
+        messages_file.write("messages -> LogStream NotRefCounted Stream {\n")
         for log_entry in log_entries:
             messages_file.write("    " + log_entry[0] + "()\n")
-        header_file.write("}\n")
-        header_file.close()
+        messages_file.write("}\n")
+        messages_file.close()
 
     return
 
@@ -30,6 +30,7 @@ def main(argv):
 
     log_entries_input_file = sys.argv[1]
     log_entries_header_file = sys.argv[2]
+    log_entries_messages_file = sys.argv[3]
 
     print("Log entries input file:", log_entries_input_file)
 
@@ -45,6 +46,7 @@ def main(argv):
                 log_entries.append(log_entry)
 
     generate_header_file(log_entries, log_entries_header_file)
+    generate_messages_file(log_entries, log_entries_messages_file)
 
     return 0
 
