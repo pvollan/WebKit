@@ -19,7 +19,8 @@ def generate_messages_file(log_entries, log_entries_messages_file):
 
     with open(log_entries_messages_file, 'w') as messages_file:
         messages_file.write("#if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)\n")
-        messages_file.write("messages -> LogEntries NotRefCounted Stream {\n")
+        messages_file.write("messages -> LogStream NotRefCounted Stream {\n")
+        messages_file.write("    LogOnBehalfOfWebContent(std::span<const uint8_t> logChannel, std::span<const uint8_t> logCategory, std::span<const uint8_t> logString, uint8_t logType)\n")
         for log_entry in log_entries:
             messages_file.write("    " + log_entry[0] + "()\n")
         messages_file.write("}\n")
@@ -40,7 +41,7 @@ def main(argv):
     with open(log_entries_input_file) as input_file:
         input_file_lines = input_file.readlines()
         for line in input_file_lines:
-            match = re.search(r'([A-Z_]*) (\"[A-Za-z ]*\")', line)
+            match = re.search(r'([A-Z_0-9]*) (\"[A-Za-z ]*\")', line)
             log_entry = []
             if match:
                 log_entry.append(match.groups()[0])
