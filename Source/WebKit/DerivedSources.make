@@ -439,6 +439,7 @@ NOTIFICATION_ALLOW_LISTS = \
 LogEntries.h LogEntries.messages.in : LogEntries.in
 	@echo Generate log entries for $< ...
 	$(PYTHON) $(WebKit2)/Scripts/generate-log-entries.py $< LogEntries.h LogEntries.messages.in
+	$(PYTHON) $(GENERATE_MESSAGE_RECEIVER_SCRIPT) $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit LogEntries
 
 all : LogEntries.h LogEntries.messages.in
 

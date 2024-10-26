@@ -18,10 +18,12 @@ def generate_messages_file(log_entries, log_entries_messages_file):
     print("Log entries messages file:", log_entries_messages_file)
 
     with open(log_entries_messages_file, 'w') as messages_file:
-        messages_file.write("messages -> LogStream NotRefCounted Stream {\n")
+        messages_file.write("#if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)\n")
+        messages_file.write("messages -> LogEntries NotRefCounted Stream {\n")
         for log_entry in log_entries:
             messages_file.write("    " + log_entry[0] + "()\n")
         messages_file.write("}\n")
+        messages_file.write("#endif\n")
         messages_file.close()
 
     return
