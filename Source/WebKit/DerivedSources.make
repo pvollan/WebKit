@@ -127,6 +127,7 @@ else
 endif
 
 MESSAGE_RECEIVERS = \
+	$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/LogEntries \
 	NetworkProcess/NetworkBroadcastChannelRegistry \
 	NetworkProcess/NetworkConnectionToWebProcess \
 	NetworkProcess/NetworkContentRuleListManager \
@@ -390,6 +391,10 @@ SANDBOX_IMPORT_DIR=$(SDKROOT)/usr/local/share/sandbox/profiles/embedded/imports
 
 all : $(GENERATED_MESSAGES_FILES)
 
+LogEntries.h LogEntries.messages.in : LogEntries.in
+	@echo Generate log entries for $< ...
+	$(PYTHON) $(WebKit2)/Scripts/generate-log-entries.py $< LogEntries.h LogEntries.messages.in
+
 $(GENERATED_MESSAGES_FILES_AS_PATTERNS) : $(MESSAGES_IN_FILES) $(GENERATE_MESSAGE_RECEIVER_SCRIPTS)
 	$(PYTHON) $(GENERATE_MESSAGE_RECEIVER_SCRIPT) $(WebKit2) $(MESSAGE_RECEIVERS)
 
@@ -435,13 +440,6 @@ NOTIFICATION_ALLOW_LISTS = \
 	grep -o '^[^;]*' $< | $(CC) $(SANITIZE_FLAGS) $(SDK_FLAGS) $(TARGET_TRIPLE_FLAGS) $(SANDBOX_DEFINES) $(TEXT_PREPROCESSOR_FLAGS) $(FRAMEWORK_FLAGS) $(HEADER_FLAGS) $(EXTERNAL_FLAGS) -include "wtf/Platform.h" - > $@.tmp
 	$(WebKit2)/Scripts/compile-sandbox.sh $@.tmp $* $(SDK_NAME) $(SANDBOX_IMPORT_DIR)
 	mv $@.tmp $@
-
-LogEntries.h LogEntries.messages.in : LogEntries.in
-	@echo Generate log entries for $< ...
-	$(PYTHON) $(WebKit2)/Scripts/generate-log-entries.py $< LogEntries.h LogEntries.messages.in
-	$(PYTHON) $(GENERATE_MESSAGE_RECEIVER_SCRIPT) $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit LogEntries
-
-all : LogEntries.h LogEntries.messages.in
 
 AUTOMATION_PROTOCOL_GENERATOR_SCRIPTS = \
 	$(JavaScriptCore_SCRIPTS_DIR)/cpp_generator_templates.py \
