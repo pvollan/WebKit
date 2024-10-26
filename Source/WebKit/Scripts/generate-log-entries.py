@@ -3,6 +3,7 @@
 import re
 import sys
 
+
 def generate_header_file(log_entries, log_entries_header_file):
     print("Log entries header file:", log_entries_header_file)
 
@@ -13,6 +14,7 @@ def generate_header_file(log_entries, log_entries_header_file):
         header_file.close()
 
     return
+
 
 def generate_messages_file(log_entries, log_entries_messages_file):
     print("Log entries messages file:", log_entries_messages_file)
@@ -28,6 +30,7 @@ def generate_messages_file(log_entries, log_entries_messages_file):
         messages_file.close()
 
     return
+
 
 def main(argv):
 
@@ -52,6 +55,7 @@ def main(argv):
     generate_messages_file(log_entries, log_entries_messages_file)
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
