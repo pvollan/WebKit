@@ -155,6 +155,7 @@ class WebProcessSupplement;
 class WebTransportSession;
 
 struct AccessibilityPreferences;
+struct AdditionalFonts;
 struct RemoteWorkerInitializationData;
 struct UserMessage;
 struct WebProcessCreationParameters;
@@ -482,6 +483,10 @@ public:
     void enableMediaPlayback();
 #if ENABLE(ROUTING_ARBITRATION)
     AudioSessionRoutingArbitrator* audioSessionRoutingArbitrator() const { return m_routingArbitrator.get(); }
+#endif
+
+#if PLATFORM(COCOA)
+    void registerAdditionalFonts(AdditionalFonts&&);
 #endif
 
 private:
