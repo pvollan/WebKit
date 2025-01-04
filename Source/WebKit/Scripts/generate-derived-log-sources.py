@@ -96,9 +96,17 @@ def generate_message_receiver_implementations_file(log_messages, log_messages_re
                 file.write("    auto osLog = adoptOSObject(os_log_create(\"com.apple.WebKit.WebContent\", \"" + category + "\"));\n")
                 file.write("    auto osLogPointer = osLog.get();\n")
 
-            file.write("    os_log_with_type(osLogPointer, " + os_log_type + ", \"[PID=%d]: \"" + format_string)
-            file.write(", static_cast<uint32_t>(m_pid)")
+
             arguments_string = log_declarations_module.get_arguments_string(parameters, log_declarations_module.PARAMETER_LIST_INCLUDE_NAME | log_declarations_module.PARAMETER_LIST_MODIFY_CSTRING)
+
+            file.write("    if (m_pid < std::numeric_limits<uint16_t>::max() && m_pid >= 0)\n")
+            file.write("        os_log_with_type(osLogPointer, " + os_log_type + ", \"WebContent[%hu]: \"" + format_string + ", static_cast<uint16_t>(m_pid)")
+            if arguments_string:
+                file.write(", ")
+            file.write(arguments_string)
+            file.write(");\n")
+            file.write("    else\n")
+            file.write("        os_log_with_type(osLogPointer, " + os_log_type + ", \"WebContent[%d]: \"" + format_string + ", static_cast<uint32_t>(m_pid)")
             if arguments_string:
                 file.write(", ")
             file.write(arguments_string)

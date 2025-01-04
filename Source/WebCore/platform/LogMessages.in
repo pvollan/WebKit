@@ -105,5 +105,6 @@ HTMLMEDIAELEMENT_CURRENTMEDIATIME_SEEKING, "HTMLMediaElement::currentMediaTime(%
 HTMLMEDIAELEMENT_UPDATEPLAYSTATE, "HTMLMediaElement::updatePlayState(%llu) shouldBePlaying = %d, playerPaused = %d", (uint64_t, int, int), DEFAULT, Media
 HTMLMEDIAELEMENT_VISIBILITYSTATECHANGED, "HTMLMediaElement::visibilityStateChanged(%llu) visible = %d", (uint64_t, int), DEFAULT, Media
 HTMLMEDIAELEMENT_CREATEMEDIAPLAYER, "HTMLMediaElement::createMediaPlayer(%llu)", (uint64_t), DEFAULT, Media
+HTMLMEDIAELEMENT_PLAYINTERNAL, "HTMLMediaElement::playInternal(%llu)", (uint64_t), DEFAULT, Media
 
 HTMLVIDEOELEMENT_MEDIAPLAYERRENDERINGMODECHANGED, "HTMLVideoElement::mediaPlayerRenderingModeChanged(%llu)", (uint64_t), DEFAULT, Media
