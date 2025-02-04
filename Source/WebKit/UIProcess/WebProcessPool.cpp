@@ -214,12 +214,7 @@ static HashSet<String, ASCIICaseInsensitiveHash>& globalURLSchemesWithCustomProt
 
 bool WebProcessPool::globalDelaysWebProcessLaunchDefaultValue()
 {
-#if PLATFORM(IOS_FAMILY)
-    // FIXME: Delayed process launch is currently disabled on iOS for performance reasons (rdar://problem/49074131).
-    return false;
-#else
     return true;
-#endif
 }
 
 Vector<String> WebProcessPool::urlSchemesWithCustomProtocolHandlers()
@@ -1177,6 +1172,9 @@ void WebProcessPool::disconnectProcess(WebProcessProxy& process)
 
 Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDataStore, const std::optional<Site>& site, WebProcessProxy::LockdownMode lockdownMode, const API::PageConfiguration& pageConfiguration)
 {
+    if (!site || site->isEmpty())
+        WEBPROCESSPOOL_RELEASE_LOG(ProcessSwapping, "processForSite: site is empty");
+
     if (site && !site->isEmpty()) {
         if (RefPtr process = webProcessCache().takeProcess(*site, websiteDataStore, lockdownMode, pageConfiguration)) {
             WEBPROCESSPOOL_RELEASE_LOG(ProcessSwapping, "processForSite: Using WebProcess from WebProcess cache (process=%p, PID=%i)", process.get(), process->processID());

@@ -798,7 +798,8 @@ Ref<WebPageProxy> WebProcessProxy::createWebPage(PageClient& pageClient, Ref<API
 {
     Ref webPage = WebPageProxy::create(pageClient, *this, WTFMove(pageConfiguration));
 
-    addExistingWebPage(webPage.get(), BeginsUsingDataStore::Yes);
+    if (!isDummyProcessProxy())
+        addExistingWebPage(webPage.get(), BeginsUsingDataStore::Yes);
 
     return webPage;
 }
