@@ -1070,6 +1070,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     bool m_inlinePredictionsEnabled { false };
 #endif
     bool m_hdrAllowed { true };
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+    bool m_hasInitializedAccessibilityInPage { false };
+#endif
 };
     
 } // namespace WebKit

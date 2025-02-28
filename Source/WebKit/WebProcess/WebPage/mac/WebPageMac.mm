@@ -125,13 +125,13 @@ void WebPage::platformInitializeAccessibility()
     // Need to initialize accessibility for VoiceOver to work when the WebContent process is using NSRunLoop.
     // Currently, it is also needed to allocate and initialize an NSApplication object.
     [NSApplication _accessibilityInitialize];
+#endif
 
     // Get the pid for the starting process.
     pid_t pid = legacyPresentingApplicationPID();
     createMockAccessibilityElement(pid);
     if (protectedCorePage()->localMainFrame())
         accessibilityTransferRemoteToken(accessibilityRemoteTokenData());
-#endif
 
 
     // Close Mach connection to Launch Services.
@@ -1076,12 +1076,6 @@ void WebPage::initializeAccessibility(Vector<SandboxExtension::Handle>&& handles
     });
 
     [NSApplication _accessibilityInitialize];
-
-    // Get the pid for the starting process.
-    pid_t pid = legacyPresentingApplicationPID();
-    createMockAccessibilityElement(pid);
-    if (protectedCorePage()->localMainFrame())
-        accessibilityTransferRemoteToken(accessibilityRemoteTokenData());
 
     for (auto& extension : extensions)
         extension->revoke();

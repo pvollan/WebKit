@@ -3754,13 +3754,16 @@ id WebViewImpl::accessibilityHitTest(CGPoint)
 
 void WebViewImpl::enableAccessibilityIfNecessary()
 {
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+    if (!m_hasInitializedAccessibilityInPage) {
+        m_page->initializeAccessibility();
+        accessibilityRegisterUIProcessTokens();
+        m_hasInitializedAccessibilityInPage = true;
+    }
+#endif
+
     if (WebCore::AXObjectCache::accessibilityEnabled())
         return;
-
-#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
-    m_page->initializeAccessibility();
-    accessibilityRegisterUIProcessTokens();
-#endif
 
     // After enabling accessibility update the window frame on the web process so that the
     // correct accessibility position is transmitted (when AX is off, that position is not calculated).
