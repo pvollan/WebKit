@@ -1591,7 +1591,10 @@ void WebProcess::registerAdditionalFonts(AdditionalFonts&& fonts)
         return true;
     });
 
-    CTFontManagerRegisterFontURLs((__bridge CFArrayRef)fontURLs.get(), kCTFontManagerScopeProcess, true, blockPtr.get());
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [fontURLs = WTFMove(fontURLs), blockPtr = WTFMove(blockPtr)] {
+        CTFontManagerRegisterFontURLs((__bridge CFArrayRef)fontURLs.get(), kCTFontManagerScopeProcess, true, blockPtr.get());
+    });
 }
 
 } // namespace WebKit
