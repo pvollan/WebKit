@@ -122,3 +122,9 @@
 
 (define (sandbox-version-2)
     (state-flag "local:tested_version_2.0"))
+
+(define (allow-for-development op)
+    (with-filter (system-attribute developer-mode)
+        (allow op (with report)))
+    (with-filter (require-not (system-attribute developer-mode))
+        (deny op)))
