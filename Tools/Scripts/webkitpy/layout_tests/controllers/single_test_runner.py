@@ -159,7 +159,7 @@ class SingleTestRunner(object):
         self_comparison_header = self._port.get_option('self_compare_with_header')
         if self_comparison_header:
             return self._run_self_comparison_test(self_comparison_header)
-        if self._options.site_isolation:
+        if self._options.load_in_cross_origin_iframe:
             comparison_header = 'SiteIsolationEnabled=true runInCrossOriginFrame=true'
             if self._reference_files:
                 return self._run_self_comparison_test(comparison_header)
