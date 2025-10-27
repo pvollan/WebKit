@@ -333,6 +333,8 @@ public:
     void didPostMessage(WebPageProxyIdentifier, UserContentControllerIdentifier, FrameInfoData&&, ScriptMessageHandlerIdentifier, JavaScriptEvaluationResult&&, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&&);
     void didPostLegacySynchronousMessage(WebPageProxyIdentifier, UserContentControllerIdentifier, FrameInfoData&&, ScriptMessageHandlerIdentifier, JavaScriptEvaluationResult&&, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&&);
 
+    void ensureMediaKeysStorageDirectory(WebPageProxyIdentifier, std::optional<WebCore::FrameIdentifier>);
+
     void enableSuddenTermination();
     void disableSuddenTermination();
     bool isSuddenTerminationEnabled() { return !m_numberOfTimesSuddenTerminationWasDisabled; }

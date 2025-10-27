@@ -112,4 +112,6 @@ messages -> WebProcessProxy WantsDispatchMessage {
 
     DidPostMessage(WebKit::WebPageProxyIdentifier pageID, WebKit::UserContentControllerIdentifier identifier, struct WebKit::FrameInfoData frameInfoData, WebKit::ScriptMessageHandlerIdentifier messageHandlerID, WebKit::JavaScriptEvaluationResult message) -> (Expected<WebKit::JavaScriptEvaluationResult, String> reply)
     DidPostLegacySynchronousMessage(WebKit::WebPageProxyIdentifier pageID, WebKit::UserContentControllerIdentifier identifier, struct WebKit::FrameInfoData frameInfoData, WebKit::ScriptMessageHandlerIdentifier messageHandlerID, WebKit::JavaScriptEvaluationResult message) -> (Expected<WebKit::JavaScriptEvaluationResult, String> reply) Synchronous
+
+    EnsureMediaKeysStorageDirectory(WebKit::WebPageProxyIdentifier pageID, std::optional<WebCore::FrameIdentifier> frameID)
 }

@@ -101,6 +101,7 @@
 #include <WebCore/SerializedCryptoKeyWrap.h>
 #include <WebCore/SerializedScriptValue.h>
 #include <WebCore/SharedMemory.h>
+#include <WebCore/StorageUtilities.h>
 #include <WebCore/SuddenTermination.h>
 #include <WebCore/WrappedCryptoKey.h>
 #include <algorithm>
@@ -3136,6 +3137,30 @@ void WebProcessProxy::didPostMessage(WebPageProxyIdentifier pageID, UserContentC
 void WebProcessProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier pageID, UserContentControllerIdentifier identifier, FrameInfoData&& frameInfo, ScriptMessageHandlerIdentifier handlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& completionHandler)
 {
     didPostMessage(pageID, identifier, WTFMove(frameInfo), handlerID, WTFMove(message), WTFMove(completionHandler));
+}
+
+void WebProcessProxy::ensureMediaKeysStorageDirectory(WebPageProxyIdentifier pageID, std::optional<WebCore::FrameIdentifier> frameID)
+{
+    WEBPROCESSPROXY_RELEASE_LOG(Media, "ensureMediaKeysStorageDirectory: frameID = %llu", frameID ? frameID->toUInt64() : 0);
+    RefPtr page = WebPageProxy::fromIdentifier(pageID);
+    if (!page) {
+        WEBPROCESSPROXY_RELEASE_LOG_ERROR(Media, "ensureMediaKeysStorageDirectory: page not found");
+        return;
+    }
+    RefPtr frame = WebFrameProxy::webFrame(frameID);
+    if (!frame) {
+        WEBPROCESSPROXY_RELEASE_LOG_ERROR(Media, "ensureMediaKeysStorageDirectory: frame not found");
+        return;
+    }
+
+    auto mediaKeysStorageSalt = page->websiteDataStore().mediaKeysStorageSalt();
+    auto& resolvedDirectories = page->websiteDataStore().resolvedDirectories();
+    String mediaKeysStorageDirectory = resolvedDirectories.mediaKeysStorageDirectory;
+    auto origin = SecurityOriginData::fromURL(frame->url());
+
+    auto originDirectoryName = WebCore::StorageUtilities::encodeSecurityOriginForFileName(mediaKeysStorageSalt, origin);
+    auto originDirectory = FileSystem::pathByAppendingComponent(mediaKeysStorageDirectory, originDirectoryName);
+    WebCore::StorageUtilities::writeOriginToFile(FileSystem::pathByAppendingComponent(originDirectory, "origin"_s), WebCore::ClientOrigin { origin, origin });
 }
 
 } // namespace WebKit

@@ -11913,7 +11913,7 @@ void Document::performPendingViewTransitions()
 String Document::mediaKeysStorageDirectory()
 {
     RefPtr currentPage = page();
-    return currentPage ? currentPage->ensureMediaKeysStorageDirectoryForOrigin(securityOrigin().data()) : emptyString();
+    return currentPage ? currentPage->ensureMediaKeysStorageDirectoryForOrigin(securityOrigin().data(), frameID()) : emptyString();
 }
 
 CheckedPtr<RenderView> Document::checkedRenderView() const
