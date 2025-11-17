@@ -967,7 +967,7 @@ void RenderElement::styleWillChange(StyleDifference diff, const RenderStyle& new
             if (m_style.usedPointerEvents() != newStyle.usedPointerEvents())
                 return true;
 #if ENABLE(TOUCH_ACTION_REGIONS)
-            if (m_style.usedTouchAction() != newStyle.usedTouchAction())
+            if (m_style.usedTouchActions() != newStyle.usedTouchActions())
                 return true;
 #endif
             if (m_style.eventListenerRegionTypes() != newStyle.eventListenerRegionTypes())

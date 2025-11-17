@@ -99,6 +99,7 @@
 #include "StyleURL.h"
 #include "StyleValueTypes+CSSValueConversion.h"
 #include "TextSpacing.h"
+#include "TouchAction.h"
 #include "ViewTimeline.h"
 #include <ranges>
 #include <wtf/text/MakeString.h>
@@ -113,6 +114,7 @@ class BuilderConverter {
 public:
     template<typename T, typename... Rest> static T convertStyleType(BuilderState&, const CSSValue&, Rest&&...);
 
+    static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
 
     static OptionSet<TextEmphasisPosition> convertTextEmphasisPosition(BuilderState&, const CSSValue&);
@@ -120,6 +122,7 @@ public:
     static TextAlignLast convertTextAlignLast(BuilderState&, const CSSValue&);
     static Resize convertResize(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
+    static OptionSet<TouchAction> convertTouchAction(BuilderState&, const CSSValue&);
 
     static OptionSet<HangingPunctuation> convertHangingPunctuation(BuilderState&, const CSSValue&);
 
@@ -138,6 +141,19 @@ public:
 template<typename T, typename... Rest> inline T BuilderConverter::convertStyleType(BuilderState& builderState, const CSSValue& value, Rest&&... rest)
 {
     return toStyleFromCSSValue<T>(builderState, value, std::forward<Rest>(rest)...);
+}
+
+inline OptionSet<TextTransform> BuilderConverter::convertTextTransform(BuilderState&, const CSSValue& value)
+{
+    auto result = RenderStyle::initialTextTransform();
+    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
+        for (auto& currentValue : *list)
+            result.add(fromCSSValue<TextTransform>(currentValue));
+    } else if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
+        if (primitiveValue->valueID() == CSSValueMathAuto)
+            result.add(TextTransform::MathAuto);
+    }
+    return result;
 }
 
 template<CSSValueID keyword> inline AtomString BuilderConverter::convertCustomIdentAtomOrKeyword(BuilderState& builderState, const CSSValue& value)
@@ -300,6 +316,25 @@ inline float zoomWithTextZoomFactor(BuilderState& builderState)
         return usedZoom * textZoomFactor;
     }
     return builderState.cssToLengthConversionData().zoom();
+}
+
+inline OptionSet<TouchAction> BuilderConverter::convertTouchAction(BuilderState&, const CSSValue& value)
+{
+    if (is<CSSPrimitiveValue>(value))
+        return fromCSSValue<TouchAction>(value);
+
+    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
+        OptionSet<TouchAction> touchActions;
+        for (auto& currentValue : *list) {
+            auto valueID = currentValue.valueID();
+            if (valueID != CSSValuePanX && valueID != CSSValuePanY && valueID != CSSValuePinchZoom)
+                return RenderStyle::initialTouchActions();
+            touchActions.add(fromCSSValueID<TouchAction>(valueID));
+        }
+        return touchActions;
+    }
+
+    return RenderStyle::initialTouchActions();
 }
 
 inline OptionSet<SpeakAs> BuilderConverter::convertSpeakAs(BuilderState&, const CSSValue& value)

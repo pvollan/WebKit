@@ -79,77 +79,79 @@ struct TextDecorationLine {
     static constexpr uint8_t SingleValueSpellingError = static_cast<uint8_t>(Type::SingleValue) | static_cast<uint8_t>(SingleValue::SpellingError);
     static constexpr uint8_t SingleValueGrammarError  = static_cast<uint8_t>(Type::SingleValue) | static_cast<uint8_t>(SingleValue::GrammarError);
 
-    constexpr TextDecorationLine() = default;
+    TextDecorationLine() = default;
 
-    constexpr TextDecorationLine(CSS::Keyword::None)
+    TextDecorationLine(uint8_t rawValue)
+        : m_packed(rawValue)
+    {
+    }
+
+    TextDecorationLine(CSS::Keyword::None)
         : m_packed(SingleValueNone)
     {
     }
 
-    constexpr TextDecorationLine(CSS::Keyword::SpellingError)
+    TextDecorationLine(CSS::Keyword::SpellingError)
         : m_packed(SingleValueSpellingError)
     {
     }
 
-    constexpr TextDecorationLine(CSS::Keyword::GrammarError)
+    TextDecorationLine(CSS::Keyword::GrammarError)
         : m_packed(SingleValueGrammarError)
     {
     }
 
-    constexpr TextDecorationLine(OptionSet<TextDecorationLine::Flag> flags)
+    TextDecorationLine(OptionSet<TextDecorationLine::Flag> flags)
         : m_packed(flags.isEmpty() ? SingleValueNone : packFlags(flags))
     {
     }
 
-    constexpr TextDecorationLine(TextDecorationLine::Flag flag)
+    TextDecorationLine(TextDecorationLine::Flag flag)
         : TextDecorationLine(OptionSet<TextDecorationLine::Flag>(flag))
     {
     }
 
-    static constexpr TextDecorationLine fromRaw(uint8_t rawValue) { return TextDecorationLine(rawValue); }
-    constexpr uint8_t toRaw() const { return m_packed; }
+    inline Type type() const { return static_cast<Type>(m_packed & TypeMask); }
+    bool isNone() const { return m_packed == SingleValueNone; }
+    bool isSpellingError() const { return m_packed == SingleValueSpellingError; }
+    bool isGrammarError() const { return m_packed == SingleValueGrammarError; }
+    bool isFlags() const { return type() == Type::Flags; }
 
-    constexpr Type type() const { return static_cast<Type>(m_packed & TypeMask); }
-    constexpr bool isNone() const { return m_packed == SingleValueNone; }
-    constexpr bool isSpellingError() const { return m_packed == SingleValueSpellingError; }
-    constexpr bool isGrammarError() const { return m_packed == SingleValueGrammarError; }
-    constexpr bool isFlags() const { return type() == Type::Flags; }
-
-    constexpr bool hasUnderline() const
+    bool hasUnderline() const
     {
         return (isFlags()) && (m_packed & UnderlineBit);
     }
 
-    constexpr bool hasOverline() const
+    bool hasOverline() const
     {
         return (isFlags()) && (m_packed & OverlineBit);
     }
 
-    constexpr bool hasLineThrough() const
+    bool hasLineThrough() const
     {
         return (isFlags()) && (m_packed & LineThroughBit);
     }
 
-    constexpr bool hasBlink() const
+    bool hasBlink() const
     {
         return (isFlags()) && (m_packed & BlinkBit);
     }
 
-    constexpr bool containsAny(OptionSet<TextDecorationLine::Flag> options) const
+    bool containsAny(OptionSet<TextDecorationLine::Flag> options) const
     {
         if (!isFlags())
             return false;
         return (m_packed & packFlags(options));
     }
 
-    constexpr bool contains(TextDecorationLine::Flag option) const
+    bool contains(TextDecorationLine::Flag option) const
     {
         if (!isFlags())
             return false;
         return (m_packed & packFlagValue(option));
     }
 
-    constexpr void remove(TextDecorationLine::Flag option)
+    void remove(TextDecorationLine::Flag option)
     {
         if (type() == Type::Flags) {
             m_packed &= ~packFlagValue(option);
@@ -159,9 +161,9 @@ struct TextDecorationLine {
         }
     }
 
-    uint8_t addOrReplaceIfNotNone(const TextDecorationLine&);
+    uint8_t addOrReplaceIfNotNone(const TextDecorationLine& value);
 
-    template<typename... F> constexpr decltype(auto) switchOn(F&&... f) const
+    template<typename... F> decltype(auto) switchOn(F&&... f) const
     {
         auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
 
@@ -181,10 +183,10 @@ struct TextDecorationLine {
         return visitor(CSS::Keyword::None { });
     }
 
-    constexpr void setNone() { m_packed = SingleValueNone; }
-    constexpr void setSpellingError() { m_packed = SingleValueSpellingError; }
-    constexpr void setGrammarError() { m_packed = SingleValueGrammarError; }
-    constexpr void setFlags(OptionSet<TextDecorationLine::Flag> flags)
+    void setNone() { m_packed = SingleValueNone; }
+    void setSpellingError() { m_packed = SingleValueSpellingError; }
+    void setGrammarError() { m_packed = SingleValueGrammarError; }
+    void setFlags(OptionSet<TextDecorationLine::Flag> flags)
     {
         if (isFlags())
             m_packed |= packFlags(flags);
@@ -192,9 +194,10 @@ struct TextDecorationLine {
             m_packed = packFlags(flags);
     }
 
-    constexpr operator bool() const { return !isNone(); }
-    constexpr bool operator==(const TextDecorationLine&) const = default;
+    operator bool() const { return !isNone(); }
+    bool operator==(const TextDecorationLine& other) const { return m_packed == other.m_packed; }
 
+    uint8_t toRaw() const { return m_packed; }
     static constexpr uint8_t packFlags(OptionSet<TextDecorationLine::Flag> flags)
     {
         uint8_t result = static_cast<uint8_t>(Type::Flags);
@@ -210,13 +213,8 @@ struct TextDecorationLine {
     }
 
 private:
-    constexpr TextDecorationLine(uint8_t rawValue)
-        : m_packed(rawValue)
-    {
-    }
-
     // Returns only the value bits, not to be confused with "toRaw", which returns the whole packed raw representation
-    constexpr uint8_t rawValue() const { return m_packed & ValuesMask; }
+    inline uint8_t rawValue() const { return m_packed & ValuesMask; }
 
     // Note that this function packs only the 'Value' bit, ignoring the Type. This is useful for bitwise operations.
     static constexpr uint8_t packFlagValue(TextDecorationLine::Flag flag)
@@ -235,7 +233,7 @@ private:
         return 0;
     }
 
-    constexpr OptionSet<TextDecorationLine::Flag> unpackFlags() const
+    OptionSet<TextDecorationLine::Flag> unpackFlags() const
     {
         ASSERT(isFlags());
         OptionSet<TextDecorationLine::Flag> flags;

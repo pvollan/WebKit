@@ -3419,8 +3419,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/page/StylePageSize.h
 
-    style/values/pointerevents/StyleTouchAction.h
-
     style/values/position/StyleInset.h
 
     style/values/primitives/StyleCoordinatedValueList.h
@@ -3510,7 +3508,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/text/StyleTextAutospace.h
     style/values/text/StyleTextIndent.h
     style/values/text/StyleTextSpacingTrim.h
-    style/values/text/StyleTextTransform.h
     style/values/text/StyleWordSpacing.h
 
     style/values/text-decoration/StyleTextDecorationLine.h

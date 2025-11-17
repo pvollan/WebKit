@@ -71,7 +71,6 @@
 #include <WebCore/StyleShapeMargin.h>
 #include <WebCore/StyleShapeOutside.h>
 #include <WebCore/StyleTextDecorationThickness.h>
-#include <WebCore/StyleTouchAction.h>
 #include <WebCore/StyleTranslate.h>
 #include <WebCore/StyleViewTimelineInsets.h>
 #include <WebCore/StyleViewTimelines.h>
@@ -81,6 +80,7 @@
 #include <WebCore/StyleWebKitInitialLetter.h>
 #include <WebCore/StyleWebKitLineClamp.h>
 #include <WebCore/StyleWillChange.h>
+#include <WebCore/TouchAction.h>
 #include <memory>
 #include <wtf/DataRef.h>
 #include <wtf/Markable.h>
@@ -145,7 +145,7 @@ public:
 
     OverflowContinue overflowContinue { OverflowContinue::Auto };
 
-    Style::TouchAction touchAction;
+    OptionSet<TouchAction> touchActions;
 
     Style::WebkitInitialLetter initialLetter;
 

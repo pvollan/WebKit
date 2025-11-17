@@ -454,7 +454,7 @@ void RenderText::styleDidChange(StyleDifference diff, const RenderStyle* oldStyl
         needsResetText = true;
     }
 
-    auto oldTransform = oldStyle ? oldStyle->textTransform() : Style::TextTransform { CSS::Keyword::None { } };
+    auto oldTransform = oldStyle ? oldStyle->textTransform() : OptionSet<TextTransform> { };
     TextSecurity oldSecurity = oldStyle ? oldStyle->textSecurity() : TextSecurity::None;
     if (needsResetText || oldTransform != newStyle.textTransform() || oldSecurity != newStyle.textSecurity())
         RenderText::setText(originalText(), true);
@@ -1693,25 +1693,25 @@ String applyTextTransform(const RenderStyle& style, const String& text, Vector<c
 {
     auto transform = style.textTransform();
 
-    if (transform.isNone())
+    if (transform.isEmpty())
         return text;
 
     // https://w3c.github.io/csswg-drafts/css-text/#text-transform-order
     auto modified = text;
-    if (transform.contains(Style::TextTransformValue::Capitalize))
+    if (transform.contains(TextTransform::Capitalize))
         modified = capitalize(modified, previousCharacter); // FIXME: Need to take locale into account.
-    else if (transform.contains(Style::TextTransformValue::Uppercase))
+    else if (transform.contains(TextTransform::Uppercase))
         modified = modified.convertToUppercaseWithLocale(style.computedLocale());
-    else if (transform.contains(Style::TextTransformValue::Lowercase))
+    else if (transform.contains(TextTransform::Lowercase))
         modified = modified.convertToLowercaseWithLocale(style.computedLocale());
 
-    if (transform.contains(Style::TextTransformValue::FullWidth))
+    if (transform.contains(TextTransform::FullWidth))
         modified = transformToFullWidth(modified);
 
-    if (transform.contains(Style::TextTransformValue::FullSizeKana))
+    if (transform.contains(TextTransform::FullSizeKana))
         modified = convertToFullSizeKana(modified);
 
-    if (transform.contains(Style::TextTransformValue::MathAuto))
+    if (transform.contains(TextTransform::MathAuto))
         modified = convertToMathAuto(modified);
 
     return modified;
@@ -1729,7 +1729,7 @@ void RenderText::setRenderedText(const String& newText)
         m_text = makeStringByReplacingAll(m_text, '\\', yenSign);
     
     const auto& style = this->style();
-    if (!style.textTransform().isNone())
+    if (!style.textTransform().isEmpty())
         m_text = applyTextTransform(style, m_text, previousCharacter());
 
     // At rendering time, if certain fonts are used, these characters get swapped out with higher-quality PUA characters.
@@ -1871,7 +1871,7 @@ String RenderText::textWithoutConvertingBackslashToYenSymbol() const
     if (!m_useBackslashAsYenSymbol || style().textSecurity() != TextSecurity::None)
         return text();
 
-    if (style().textTransform().isNone())
+    if (style().textTransform().isEmpty())
         return originalText();
 
     return applyTextTransform(style(), originalText(), previousCharacter());

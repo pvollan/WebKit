@@ -280,7 +280,7 @@ static bool isScrollableOverflow(Overflow overflow)
     return overflow == Overflow::Scroll || overflow == Overflow::Auto;
 }
 
-static Style::TouchAction computeUsedTouchAction(const RenderStyle& style, Style::TouchAction usedTouchAction)
+static OptionSet<TouchAction> computeUsedTouchActions(const RenderStyle& style, OptionSet<TouchAction> usedTouchActions)
 {
     // https://w3c.github.io/pointerevents/#determining-supported-touch-behavior
     // "A touch behavior is supported if it conforms to the touch-action property of each element between
@@ -289,26 +289,24 @@ static Style::TouchAction computeUsedTouchAction(const RenderStyle& style, Style
 
     bool hasDefaultTouchBehavior = isScrollableOverflow(style.overflowX()) || isScrollableOverflow(style.overflowY());
     if (hasDefaultTouchBehavior)
-        usedTouchAction = RenderStyle::initialTouchAction();
+        usedTouchActions = RenderStyle::initialTouchActions();
 
-    auto touchAction = style.touchAction();
-    if (touchAction == RenderStyle::initialTouchAction())
-        return usedTouchAction;
+    auto touchActions = style.touchActions();
+    if (touchActions == RenderStyle::initialTouchActions())
+        return usedTouchActions;
 
-    if (usedTouchAction.isNone() || touchAction.isNone())
-        return CSS::Keyword::None { };
+    if (usedTouchActions.contains(TouchAction::None))
+        return { TouchAction::None };
 
-    auto usedTouchActionEnumSet = usedTouchAction.tryEnumSet();
-    if (!usedTouchActionEnumSet)
-        return touchAction;
+    if (usedTouchActions.containsAny({ TouchAction::Auto, TouchAction::Manipulation }))
+        return touchActions;
 
-    auto touchActionEnumSet = touchAction.tryEnumSet();
-    if (!touchActionEnumSet)
-        return usedTouchAction;
+    if (touchActions.containsAny({ TouchAction::Auto, TouchAction::Manipulation }))
+        return usedTouchActions;
 
-    auto sharedTouchActions = *usedTouchActionEnumSet & *touchActionEnumSet;
+    auto sharedTouchActions = usedTouchActions & touchActions;
     if (sharedTouchActions.isEmpty())
-        return CSS::Keyword::None { };
+        return { TouchAction::None };
 
     return sharedTouchActions;
 }
@@ -793,7 +791,7 @@ void Adjuster::adjust(RenderStyle& style) const
         style.setUsedAppleVisualEffectForSubtree(m_parentStyle.usedAppleVisualEffectForSubtree());
 #endif
 
-    style.setUsedTouchAction(computeUsedTouchAction(style, m_parentStyle.usedTouchAction()));
+    style.setUsedTouchActions(computeUsedTouchActions(style, m_parentStyle.usedTouchActions()));
 
     // Counterpart in Element::addToTopLayer/removeFromTopLayer!
     auto hasInertAttribute = [] (const Element* element) -> bool {
@@ -1031,7 +1029,7 @@ void Adjuster::adjustForSiteSpecificQuirks(RenderStyle& style) const
     if (documentQuirks.needsGoogleMapsScrollingQuirk()) {
         static MainThreadNeverDestroyed<const AtomString> className("PUtLdf"_s);
         if (is<HTMLBodyElement>(*m_element) && m_element->hasClassName(className))
-            style.setUsedTouchAction(CSS::Keyword::Auto { });
+            style.setUsedTouchActions({ TouchAction::Auto });
     }
     if (documentQuirks.needsFacebookStoriesCreationFormQuirk(*m_element, style))
         style.setEffectiveDisplay(DisplayType::Flex);

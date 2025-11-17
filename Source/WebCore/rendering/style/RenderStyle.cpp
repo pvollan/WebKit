@@ -55,8 +55,6 @@
 #include "StyleResolver.h"
 #include "StyleScaleTransformFunction.h"
 #include "StyleSelfAlignmentData.h"
-#include "StyleTextDecorationLine.h"
-#include "StyleTextTransform.h"
 #include "StyleTreeResolver.h"
 #include "TransformOperationData.h"
 #include <algorithm>
@@ -110,7 +108,7 @@ static_assert(sizeof(RenderStyle) == sizeof(SameSizeAsRenderStyle), "RenderStyle
 
 static_assert(PublicPseudoIDBits == allPublicPseudoElementTypes.size());
 
-static_assert(!(static_cast<unsigned>(Style::maxTextTransformValue) >> TextTransformBits));
+static_assert(!(static_cast<unsigned>(maxTextTransformValue) >> TextTransformBits));
 
 // Value zero is used to indicate no pseudo-element.
 static_assert(!((enumToUnderlyingType(PseudoElementType::HighestEnumValue) + 1) >> PseudoElementTypeBits));
@@ -1880,7 +1878,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyOffsetRotate);
         if (first.textDecorationThickness != second.textDecorationThickness)
             changingProperties.m_properties.set(CSSPropertyTextDecorationThickness);
-        if (first.touchAction != second.touchAction)
+        if (first.touchActions != second.touchActions)
             changingProperties.m_properties.set(CSSPropertyTouchAction);
         if (first.marginTrim != second.marginTrim)
             changingProperties.m_properties.set(CSSPropertyMarginTrim);
@@ -2121,7 +2119,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         // textSizeAdjust
         // userSelect
         // isInSubtreeWithBlendMode
-        // usedTouchAction
+        // usedTouchActions
         // eventListenerRegionTypes
         // effectiveInert
         // usedContentVisibility
@@ -3614,7 +3612,7 @@ void RenderStyle::NonInheritedFlags::dumpDifferences(TextStream& ts, const NonIn
     LOG_IF_DIFFERENT(usesContainerUnits);
     LOG_IF_DIFFERENT(useTreeCountingFunctions);
 
-    LOG_IF_DIFFERENT_WITH_FROM_RAW(Style::TextDecorationLine, textDecorationLine);
+    LOG_IF_DIFFERENT_WITH_CAST(Style::TextDecorationLine, textDecorationLine);
 
     LOG_IF_DIFFERENT(hasExplicitlyInheritedProperties);
     LOG_IF_DIFFERENT(disallowsFastPathInheritance);
@@ -3640,8 +3638,8 @@ void RenderStyle::InheritedFlags::dumpDifferences(TextStream& ts, const Inherite
     LOG_IF_DIFFERENT_WITH_CAST(TextAlignMode, textAlign);
     LOG_IF_DIFFERENT_WITH_CAST(TextWrapStyle, textWrapStyle);
 
-    LOG_IF_DIFFERENT_WITH_FROM_RAW(Style::TextTransform, textTransform);
-    LOG_IF_DIFFERENT_WITH_FROM_RAW(Style::TextDecorationLine, textDecorationLineInEffect);
+    LOG_IF_DIFFERENT_WITH_FROM_RAW(OptionSet<TextTransform>, textTransform);
+    LOG_IF_DIFFERENT_WITH_CAST(Style::TextDecorationLine, textDecorationLineInEffect);
 
     LOG_IF_DIFFERENT_WITH_CAST(PointerEvents, pointerEvents);
     LOG_IF_DIFFERENT_WITH_CAST(Visibility, visibility);

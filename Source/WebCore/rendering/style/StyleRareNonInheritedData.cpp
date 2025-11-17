@@ -47,7 +47,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , zoom(RenderStyle::initialZoom())
     , maxLines(RenderStyle::initialMaxLines())
     , overflowContinue(RenderStyle::initialOverflowContinue())
-    , touchAction(RenderStyle::initialTouchAction())
+    , touchActions(RenderStyle::initialTouchActions())
     , initialLetter(RenderStyle::initialInitialLetter())
     , marquee(StyleMarqueeData::create())
     , backdropFilter(StyleFilterData::create())
@@ -155,7 +155,7 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , zoom(o.zoom)
     , maxLines(o.maxLines)
     , overflowContinue(o.overflowContinue)
-    , touchAction(o.touchAction)
+    , touchActions(o.touchActions)
     , initialLetter(o.initialLetter)
     , marquee(o.marquee)
     , backdropFilter(o.backdropFilter)
@@ -270,7 +270,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && zoom == o.zoom
         && maxLines == o.maxLines
         && overflowContinue == o.overflowContinue
-        && touchAction == o.touchAction
+        && touchActions == o.touchActions
         && initialLetter == o.initialLetter
         && marquee == o.marquee
         && backdropFilter == o.backdropFilter
@@ -410,7 +410,7 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(maxLines);
     LOG_IF_DIFFERENT(overflowContinue);
 
-    LOG_IF_DIFFERENT(touchAction);
+    LOG_IF_DIFFERENT(touchActions);
 
     LOG_IF_DIFFERENT(initialLetter);
 

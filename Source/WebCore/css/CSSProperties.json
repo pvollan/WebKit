@@ -7886,7 +7886,6 @@
             "inherited": true,
             "initial": "none",
             "values": [
-                "none",
                 "capitalize",
                 "uppercase",
                 "lowercase",
@@ -7894,15 +7893,15 @@
                 "full-width",
                 {
                     "value": "math-auto",
-                    "settings-flag": "cssTextTransformMathAutoEnabled",
-                    "url": "https://w3c.github.io/mathml-core/#math-auto-transform"
-                }
+                    "settings-flag": "cssTextTransformMathAutoEnabled"
+                },
+                "none"
             ],
             "codegen-properties": {
                 "aliases": [
                     "-epub-text-transform"
                 ],
-                "style-converter": "StyleType<TextTransform>",
+                "style-converter": "TextTransform",
                 "parser-grammar": "none | [ [ capitalize | uppercase | lowercase ] || full-width || full-size-kana ]@(no-single-item-opt) | math-auto@(settings-flag=cssTextTransformMathAutoEnabled)"
             },
             "specification": {
@@ -12280,13 +12279,11 @@
                     "status": "unimplemented",
                     "url": "https://w3c.github.io/pointerevents/#the-touch-action-css-property"
                 },
-                {
-                    "value": "pinch-zoom",
-                    "status": "non-standard"
-                }
+                "pinch-zoom"
             ],
             "codegen-properties": {
-                "style-converter": "StyleType<TouchAction>",
+                "render-style-name-for-methods": "TouchActions",
+                "style-converter": "TouchAction",
                 "parser-grammar": "auto | none | [ pan-x || pan-y || pinch-zoom ]@(no-single-item-opt) | manipulation",
                 "parser-grammar-comment": "Current spec grammar is 'auto | none | [ [ pan-x | pan-left | pan-right ] || [ pan-y | pan-up | pan-down ] ] | manipulation'"
             },

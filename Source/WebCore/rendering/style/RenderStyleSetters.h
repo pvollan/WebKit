@@ -145,7 +145,7 @@ inline void RenderStyle::setUsedAppearance(StyleAppearance a) { SET_NESTED(m_non
 inline void RenderStyle::setEffectiveInert(bool effectiveInert) { SET(m_rareInheritedData, effectiveInert, effectiveInert); }
 inline void RenderStyle::setIsEffectivelyTransparent(bool effectivelyTransparent) { SET(m_rareInheritedData, effectivelyTransparent, effectivelyTransparent); }
 inline void RenderStyle::setItemTolerance(Style::ItemTolerance&& tolerance) { SET_NESTED(m_nonInheritedData, rareData, itemTolerance, WTFMove(tolerance)); }
-inline void RenderStyle::setUsedTouchAction(Style::TouchAction touchAction) { SET(m_rareInheritedData, usedTouchAction, touchAction); }
+inline void RenderStyle::setUsedTouchActions(OptionSet<TouchAction> touchActions) { SET(m_rareInheritedData, usedTouchActions, touchActions); }
 inline void RenderStyle::setEventListenerRegionTypes(OptionSet<EventListenerRegionType> eventListenerTypes) { SET(m_rareInheritedData, eventListenerRegionTypes, eventListenerTypes); }
 inline void RenderStyle::setFieldSizing(FieldSizing value) { SET_NESTED(m_nonInheritedData, rareData, fieldSizing, static_cast<unsigned>(value)); }
 inline void RenderStyle::setFilter(Style::Filter&& filter) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, filter, filter, WTFMove(filter)); }
@@ -316,12 +316,12 @@ inline void RenderStyle::setTextSecurity(TextSecurity security) { SET(m_rareInhe
 inline void RenderStyle::setTextShadow(Style::TextShadows&& textShadow) { SET(m_rareInheritedData, textShadow, WTFMove(textShadow)); }
 inline void RenderStyle::setTextStrokeColor(Style::Color&& color) { SET(m_rareInheritedData, textStrokeColor, WTFMove(color)); }
 inline void RenderStyle::setTextStrokeWidth(Style::WebkitTextStrokeWidth width) { SET(m_rareInheritedData, textStrokeWidth, width); }
-inline void RenderStyle::setTextTransform(Style::TextTransform value) { m_inheritedFlags.textTransform = value.toRaw(); }
+inline void RenderStyle::setTextTransform(OptionSet<TextTransform> value) { m_inheritedFlags.textTransform = value.toRaw(); }
 inline void RenderStyle::setTextUnderlineOffset(Style::TextUnderlineOffset&& textUnderlineOffset) { SET(m_rareInheritedData, textUnderlineOffset, WTFMove(textUnderlineOffset)); }
 inline void RenderStyle::setTextUnderlinePosition(OptionSet<TextUnderlinePosition> position) { SET(m_rareInheritedData, textUnderlinePosition, static_cast<unsigned>(position.toRaw())); }
 inline void RenderStyle::setTextZoom(TextZoom zoom) { SET(m_rareInheritedData, textZoom, static_cast<unsigned>(zoom)); }
 inline void RenderStyle::setTop(Style::InsetEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, inset.top(), WTFMove(edge)); }
-inline void RenderStyle::setTouchAction(Style::TouchAction touchAction) { SET_NESTED(m_nonInheritedData, rareData, touchAction, touchAction); }
+inline void RenderStyle::setTouchActions(OptionSet<TouchAction> actions) { SET_NESTED(m_nonInheritedData, rareData, touchActions, actions); }
 inline void RenderStyle::setTransform(Style::Transform&& transform) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, transform, WTFMove(transform)); }
 inline void RenderStyle::setTransformBox(TransformBox box) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, transformBox, box); }
 inline void RenderStyle::setTransformOrigin(Style::TransformOrigin&& origin) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, origin, WTFMove(origin)); }
