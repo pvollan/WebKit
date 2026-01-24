@@ -100,6 +100,13 @@ void LogStream::logOnBehalfOfWebContent(std::span<const uint8_t> logSubsystem, s
         return;
 #endif
 
+#ifndef NDEBUG
+    if (equalSpans("com.apple.WebKit\0"_span, logSubsystem)) {
+        SAFE_FPRINTF(stderr, "WebKit log string: %s\n", CString(nullTerminatedLogString));
+        ASSERT_NOT_REACHED();
+    }
+#endif // !NDEBUG
+
     // Use '%{public}s' in the format string for the preprocessed string from the WebContent process.
     // This should not reveal any redacted information in the string, since it has already been composed in the WebContent process.
     os_log_with_type(osLogPointer, static_cast<os_log_type_t>(logType), "WebContent[%d] %{public}s", m_pid, byteCast<char>(nullTerminatedLogString).data());
