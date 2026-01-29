@@ -1285,7 +1285,7 @@ Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDat
         }
     } else if (site && !site->isEmpty() && processSwapDisposition != ProcessSwapDisposition::COOP) {
         // We don't reuse cached processess because the process cache is per site, whereas COOP swaps are based on origin.
-        if (RefPtr process = webProcessCache().takeProcess(*site, isolatedProcessType, websiteDataStore, lockdownMode, enhancedSecurity, pageConfiguration)) {
+        if (RefPtr process = webProcessCache().takeProcess(*site, isolatedProcessType, mainFrameSite, websiteDataStore, lockdownMode, enhancedSecurity, pageConfiguration)) {
             WEBPROCESSPOOL_RELEASE_LOG(ProcessSwapping, "processForSite: Using WebProcess from WebProcess cache (process=%p, PID=%i)", process.get(), process->processID());
             ASSERT(m_processes.containsIf([&](auto& item) { return item.ptr() == process; }));
             return process.releaseNonNull();
@@ -1305,6 +1305,8 @@ Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDat
             tryPrewarmWithDomainInformation(*process, site->domain());
         ASSERT(m_processes.containsIf([&](auto& item) { return item.ptr() == process; }));
         process->setIsolatedProcessType(isolatedProcessType);
+        if (mainFrameSite)
+            process->setMainFrameSite(*mainFrameSite);
         return process.releaseNonNull();
     }
 
@@ -1328,6 +1330,8 @@ Ref<WebProcessProxy> WebProcessPool::processForSite(WebsiteDataStore& websiteDat
     auto enableWebAssemblyDebugger = protect(pageConfiguration.preferences())->webAssemblyDebuggerEnabled() ? WebProcessProxy::EnableWebAssemblyDebugger::Yes : WebProcessProxy::EnableWebAssemblyDebugger::No;
     Ref process = createNewWebProcess(&websiteDataStore, lockdownMode, enhancedSecurity, enableWebAssemblyDebugger);
     process->setIsolatedProcessType(isolatedProcessType);
+    if (mainFrameSite)
+        process->setMainFrameSite(*mainFrameSite);
     return process;
 }
 

@@ -241,6 +241,9 @@ public:
     IsolatedProcessType isolatedProcessType() const { return m_isolatedProcessType; }
     void setIsolatedProcessType(IsolatedProcessType isolatedProcessType) { m_isolatedProcessType = isolatedProcessType; }
 
+    const std::optional<WebCore::Site>& mainFrameSite() const { return m_mainFrameSite; }
+    void setMainFrameSite(const WebCore::Site& site) { m_mainFrameSite = site; }
+
     enum class WillShutDown : bool { No, Yes };
     void setIsInProcessCache(bool, WillShutDown = WillShutDown::No);
     bool isInProcessCache() const { return m_isInProcessCache; }
@@ -822,6 +825,7 @@ private:
     bool m_isInProcessCache { false };
 
     IsolatedProcessType m_isolatedProcessType { IsolatedProcessType::Unspecified };
+    std::optional<WebCore::Site> m_mainFrameSite;
 
     enum class NoOrMaybe { No, Maybe } m_isResponsive;
     Vector<CompletionHandler<void(bool webProcessIsResponsive)>> m_isResponsiveCallbacks;
