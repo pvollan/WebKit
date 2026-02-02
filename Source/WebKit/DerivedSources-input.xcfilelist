@@ -281,6 +281,7 @@ $(PROJECT_DIR)/Shared/Cocoa/CoreIPCURL.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/DataDetectionResult.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/InsertTextOptions.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/MachSendRightAnnotated.serialization.in
+$(PROJECT_DIR)/Shared/Cocoa/ProcessStartupSandboxExtensions.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/RemoteObjectInvocation.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/RevealItem.serialization.in
 $(PROJECT_DIR)/Shared/Cocoa/SafeSendRight.serialization.in

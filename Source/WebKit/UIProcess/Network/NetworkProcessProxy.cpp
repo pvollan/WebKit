@@ -243,6 +243,9 @@ void NetworkProcessProxy::sendCreationParametersToNewProcess()
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->beginResponsivenessChecks();
     });
+#if PLATFORM(MAC)
+    parameters.processStartupSandboxExtensions.createSandboxExtensions("com.apple.WebKit.Networking"_s);
+#endif
 }
 
 static bool anyProcessPoolAlwaysRunsAtBackgroundPriority()

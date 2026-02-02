@@ -373,6 +373,10 @@ static void setVideoDecoderBehaviors(OptionSet<VideoDecoderBehavior> videoDecode
 
 void WebProcess::platformInitializeWebProcess(WebProcessCreationParameters& parameters)
 {
+#if PLATFORM(MAC)
+    parameters.processStartupSandboxExtensions.consumeSandboxExtensions();
+#endif
+
 #if ENABLE(WEBASSEMBLY_DEBUGGER) && ENABLE(REMOTE_INSPECTOR)
     // Set JSC options early, before any VM creation
     if (parameters.shouldEnableWebAssemblyDebugger) [[unlikely]] {
