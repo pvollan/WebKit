@@ -24,4 +24,5 @@
     WebKit::SandboxExtensionHandle webKitBundleDirectoryExtension;
     WebKit::SandboxExtensionHandle cacheDirectoryExtension;
     WebKit::SandboxExtensionHandle tempDirectoryExtension;
+    String userDirectorySuffix;
 };

@@ -39,11 +39,12 @@ struct ProcessStartupSandboxExtensions {
     SandboxExtension::Handle webKitBundleDirectoryExtension;
     SandboxExtension::Handle cacheDirectoryExtension;
     SandboxExtension::Handle tempDirectoryExtension;
+    String userDirectorySuffix;
 
 private:
     String webKitBundlePath() const;
-    void createCacheDirectorySandboxExtension(ASCIILiteral processName);
-    void createTempDirectorySandboxExtension(ASCIILiteral processName);
+    void createCacheDirectorySandboxExtension(String userDirectorySuffix);
+    void createTempDirectorySandboxExtension(String userDirectorySuffix);
 };
 
 }
