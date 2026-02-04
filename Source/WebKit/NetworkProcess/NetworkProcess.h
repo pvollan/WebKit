@@ -682,10 +682,6 @@ private:
     };
     HashMap<TaskIdentifier, DeleteWebsiteDataTask> m_deleteWebsiteDataTasks;
 
-#if PLATFORM(MAC)
-    String m_uiProcessName;
-#endif
-
 #if ENABLE(DNS_SERVER_FOR_TESTING_IN_NETWORKING_PROCESS)
     OSObjectPtr<nw_resolver_config_t> m_resolverConfig;
 #endif

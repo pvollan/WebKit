@@ -238,14 +238,15 @@ void NetworkProcessProxy::sendCreationParametersToNewProcess()
 
     parameters.defaultRequestTimeoutInterval = API::URLRequest::defaultTimeoutInterval();
 
+#if PLATFORM(MAC)
+    parameters.processStartupSandboxExtensions.createSandboxExtensions("com.apple.WebKit.Networking"_s);
+#endif
+
     WebProcessPool::platformInitializeNetworkProcess(parameters);
     sendWithAsyncReply(Messages::NetworkProcess::InitializeNetworkProcess(WTF::move(parameters)), [weakThis = WeakPtr { *this }, initializationActivityAndGrant = initializationActivityAndGrant()] {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->beginResponsivenessChecks();
     });
-#if PLATFORM(MAC)
-    parameters.processStartupSandboxExtensions.createSandboxExtensions("com.apple.WebKit.Networking"_s);
-#endif
 }
 
 static bool anyProcessPoolAlwaysRunsAtBackgroundPriority()
