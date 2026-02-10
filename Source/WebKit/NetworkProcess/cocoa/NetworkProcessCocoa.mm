@@ -89,6 +89,8 @@ static void initializeNetworkSettings()
 
 void NetworkProcess::platformInitializeNetworkProcessCocoa(const NetworkProcessCreationParameters& parameters)
 {
+    setQOS(parameters.latencyQOS, parameters.throughputQOS);
+
     m_isParentProcessFullWebBrowserOrRunningTest = parameters.isParentProcessFullWebBrowserOrRunningTest;
 
     _CFNetworkSetATSContext(parameters.networkATSContext.get());
