@@ -32,6 +32,7 @@
 #include "APIUserScript.h"
 #include "APIUserStyleSheet.h"
 #include "MessageReceiver.h"
+#include "SiteIsolatedActivity.h"
 #include "WebExtension.h"
 #include "WebExtensionAction.h"
 #include "WebExtensionAlarm.h"
@@ -316,7 +317,11 @@ public:
         std::optional<WebExtensionTabIdentifier> tabIdentifier;
         RefPtr<API::InspectorExtension> extension;
         RetainPtr<WKWebView> backgroundWebView;
+#if USE(SITE_ISOLATED_ACTIVITY)
+        RefPtr<SiteIsolatedActivity> activity;
+#else
         RefPtr<ProcessThrottlerActivity> activity;
+#endif
     };
 #endif
 
@@ -1069,7 +1074,11 @@ private:
 
 #if PLATFORM(COCOA)
     RetainPtr<WKWebView> m_backgroundWebView;
+#if USE(SITE_ISOLATED_ACTIVITY)
+    RefPtr<SiteIsolatedActivity> m_backgroundWebViewActivity;
+#else
     RefPtr<ProcessThrottlerActivity> m_backgroundWebViewActivity;
+#endif
     RetainPtr<_WKWebExtensionContextDelegate> m_delegate;
 #endif
     RefPtr<API::Error> m_backgroundContentLoadError;

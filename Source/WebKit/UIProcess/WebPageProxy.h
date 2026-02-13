@@ -533,6 +533,7 @@ class RemoteScrollingCoordinatorProxy;
 class RevealItem;
 class SandboxExtensionHandle;
 class SecKeyProxyStore;
+class SiteIsolatedActivity;
 class SpeechRecognitionPermissionManager;
 class SuspendedPageProxy;
 class SystemPreviewController;
@@ -684,6 +685,7 @@ enum class PDFDisplayMode : uint8_t;
 enum class PasteboardAccessIntent : bool;
 enum class ProcessSwapRequestedByClient : bool;
 enum class ProcessTerminationReason : uint8_t;
+enum class ProcessThrottlerActivityType : bool;
 enum class QuickLookPreviewActivity : uint8_t;
 enum class RespectSelectionAnchor : bool;
 enum class SOAuthorizationLoadPolicy : bool;
@@ -2859,6 +2861,10 @@ public:
 
     WebProcessActivityState& processActivityState() { return m_mainFrameProcessActivityState; }
 
+    Ref<SiteIsolatedActivity> siteIsolatedActivity(ASCIILiteral name, ProcessThrottlerActivityType);
+    void addSiteIsolatedActivity(SiteIsolatedActivity&);
+    void removeSiteIsolatedActivity(SiteIsolatedActivity&);
+
 #if ENABLE(WEB_PROCESS_SUSPENSION_DELAY)
     void updateWebProcessSuspensionDelay();
 #endif
@@ -2927,6 +2933,9 @@ public:
     bool hasValidNetworkActivity() const;
 
     void takeActivitiesOnRemotePage(RemotePageProxy&);
+
+    void didCreateRemotePage(RemotePageProxy&);
+    void willDestroyRemotePage(RemotePageProxy&);
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DEVICE_ORIENTATION)
     RefPtr<WebDeviceOrientationUpdateProviderProxy> NODELETE webDeviceOrientationUpdateProviderProxy();
@@ -4164,6 +4173,8 @@ private:
 #if HAVE(AUDIT_TOKEN)
     std::optional<audit_token_t> m_presentingApplicationAuditToken;
 #endif
+
+    WeakHashSet<SiteIsolatedActivity> m_siteIsolatedActivities;
 
     const Ref<AboutSchemeHandler> m_aboutSchemeHandler;
     RefPtr<WebPageProxyTesting> m_pageForTesting;

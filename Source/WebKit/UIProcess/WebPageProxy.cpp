@@ -129,6 +129,7 @@
 #include "RunJavaScriptParameters.h"
 #include "SandboxExtension.h"
 #include "SharedBufferReference.h"
+#include "SiteIsolatedActivity.h"
 #include "SpeechRecognitionPermissionManager.h"
 #include "SpeechRecognitionRemoteRealtimeMediaSource.h"
 #include "SpeechRecognitionRemoteRealtimeMediaSourceManager.h"
@@ -17637,6 +17638,20 @@ void WebPageProxy::takeActivitiesOnRemotePage(RemotePageProxy& remotePage)
         remotePage.processActivityState().takeNetworkActivity();
 }
 
+void WebPageProxy::didCreateRemotePage(RemotePageProxy& remotePage)
+{
+    m_siteIsolatedActivities.forEach([&](Ref<SiteIsolatedActivity> activity) {
+        activity->addActivityForRemotePage(remotePage);
+    });
+}
+
+void WebPageProxy::willDestroyRemotePage(RemotePageProxy& remotePage)
+{
+    m_siteIsolatedActivities.forEach([&](Ref<SiteIsolatedActivity> activity) {
+        activity->removeActivityForRemotePage(remotePage);
+    });
+}
+
 UniqueRef<TextExtractionAssertionScope> WebPageProxy::createTextExtractionAssertionScope()
 {
     return makeUniqueRef<TextExtractionAssertionScope>(*this);
@@ -17656,6 +17671,21 @@ void WebPageProxy::dropTextExtractionAssertion()
     protect(browsingContextGroup())->forEachRemotePage(*this, [](auto& remotePage) {
         remotePage.processActivityState().dropTextExtractionAssertion();
     });
+}
+
+Ref<SiteIsolatedActivity> WebPageProxy::siteIsolatedActivity(ASCIILiteral name, ProcessThrottlerActivityType type)
+{
+    return SiteIsolatedActivity::create(*this, name, type);
+}
+
+void WebPageProxy::addSiteIsolatedActivity(SiteIsolatedActivity& activity)
+{
+    m_siteIsolatedActivities.add(activity);
+}
+
+void WebPageProxy::removeSiteIsolatedActivity(SiteIsolatedActivity& activity)
+{
+    m_siteIsolatedActivities.remove(activity);
 }
 
 // See SwiftDemoLogo.swift for the rationale here

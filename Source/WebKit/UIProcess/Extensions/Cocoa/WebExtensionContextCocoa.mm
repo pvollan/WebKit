@@ -2446,7 +2446,11 @@ void WebExtensionContext::loadBackgroundWebView()
     Ref backgroundProcess = backgroundPage->siteIsolatedProcess();
 
     // Use foreground activity to keep background content responsive to events.
+#if USE(SITE_ISOLATED_ACTIVITY)
+    m_backgroundWebViewActivity = backgroundPage->siteIsolatedActivity("Web Extension background content"_s, ProcessThrottlerActivityType::Foreground);
+#else
     m_backgroundWebViewActivity = protect(backgroundProcess->throttler())->foregroundActivity("Web Extension background content"_s);
+#endif
 
     if (!protect(extension())->backgroundContentIsServiceWorker()) {
         backgroundProcess->send(Messages::WebExtensionContextProxy::SetBackgroundPageIdentifier(backgroundPage->webPageIDInMainFrameProcess()), identifier());
@@ -2997,10 +3001,14 @@ void WebExtensionContext::loadInspectorBackgroundPage(WebInspectorUIProxy& inspe
         Ref inspectorExtension = result.value();
         inspectorExtension->setClient(makeUniqueRef<InspectorExtensionClient>(inspectorExtension, *this));
 
-        Ref process = inspectorBackgroundWebView._page->legacyMainFrameProcess();
-
         // Use foreground activity to keep background content responsive to events.
+        Ref process = inspectorBackgroundWebView._page->legacyMainFrameProcess();
+#if USE(SITE_ISOLATED_ACTIVITY)
+        Ref inspectorPage = *inspectorBackgroundWebView._page;
+        Ref inspectorBackgroundWebViewActivity = inspectorPage->siteIsolatedActivity("Web Extension Inspector background content"_s, ProcessThrottlerActivityType::Foreground);
+#else
         Ref inspectorBackgroundWebViewActivity = protect(process->throttler())->foregroundActivity("Web Extension Inspector background content"_s);
+#endif
 
         InspectorContext inspectorContext {
             tab->identifier(),

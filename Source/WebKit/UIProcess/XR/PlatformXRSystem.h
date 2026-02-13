@@ -30,6 +30,7 @@
 #include "MessageReceiver.h"
 #include "PlatformXRCoordinator.h"
 #include "ProcessThrottler.h"
+#include "SiteIsolatedActivity.h"
 #include <WebCore/ExceptionData.h>
 #include <WebCore/PlatformXR.h>
 #include <WebCore/SecurityOriginData.h>
@@ -130,7 +131,11 @@ private:
     void invalidateImmersiveSessionState(ImmersiveSessionState nextSessionState = ImmersiveSessionState::Idle);
 
     WeakPtr<WebPageProxy> m_page;
+#if USE(SITE_ISOLATED_ACTIVITY)
+    RefPtr<SiteIsolatedActivity> m_immersiveSessionActivity;
+#else
     RefPtr<ProcessThrottler::ForegroundActivity> m_immersiveSessionActivity;
+#endif
 };
 
 } // namespace WebKit

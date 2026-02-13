@@ -94,7 +94,11 @@ void PlatformXRSystem::ensureImmersiveSessionActivity()
     if (m_immersiveSessionActivity && m_immersiveSessionActivity->isValid())
         return;
 
+#if USE(SITE_ISOLATED_ACTIVITY)
+    m_immersiveSessionActivity = page->siteIsolatedActivity("XR immersive session"_s, ProcessThrottlerActivityType::Foreground);
+#else
     m_immersiveSessionActivity = protect(protect(page->legacyMainFrameProcess())->throttler())->foregroundActivity("XR immersive session"_s);
+#endif
 }
 
 void PlatformXRSystem::enumerateImmersiveXRDevices(CompletionHandler<void(Vector<XRDeviceInfo>&&)>&& completionHandler)
