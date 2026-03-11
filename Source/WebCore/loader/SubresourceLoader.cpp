@@ -216,9 +216,9 @@ void SubresourceLoader::willSendRequestInternal(ResourceRequest&& newRequest, co
     auto continueWillSendRequest = [this, protectedThis = Ref { *this }, redirectResponse] (CompletionHandler<void(ResourceRequest&&)>&& completionHandler, ResourceRequest&& newRequest) mutable {
         if (newRequest.isNull() || reachedTerminalState()) {
             if (newRequest.isNull())
-                SUBRESOURCELOADER_RELEASE_LOG(SUBRESOURCELOADER_WILLSENDREQUESTINTERNAL_CANCELLED_INVALID_NEW_REQUEST);
+        SUBRESOURCELOADER_RELEASE_LOG(subResourceLoaderWillSendRequestInternalCancelledInvalidNewRequest);
             else
-                SUBRESOURCELOADER_RELEASE_LOG(SUBRESOURCELOADER_WILLSENDREQUESTINTERNAL_CANCELLED_TERMINAL_STATE);
+                SUBRESOURCELOADER_RELEASE_LOG(subResourceLoaderWillSendRequestInternalCancelledTerminalState);
             return completionHandler(WTF::move(newRequest));
         }
 
