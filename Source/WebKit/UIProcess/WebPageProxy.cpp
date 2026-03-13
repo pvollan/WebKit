@@ -118,6 +118,7 @@
 #include "PlatformXRSystem.h"
 #include "PolicyDecision.h"
 #include "PrintInfo.h"
+#include "ProcessActivityGroup.h"
 #include "ProcessAssertion.h"
 #include "ProcessTerminationReason.h"
 #include "ProcessThrottler.h"
@@ -1749,7 +1750,7 @@ RefPtr<API::Navigation> WebPageProxy::launchProcessForReload()
     legacyMainFrameProcess->startResponsivenessTimer();
 
     if (shouldForceForegroundPriorityForClientNavigation())
-        navigation->setClientNavigationActivity(protect(legacyMainFrameProcess->throttler())->foregroundActivity("Client reload"_s));
+        setClientNavigationActivity(navigation);
 
     return navigation;
 }
@@ -2174,7 +2175,7 @@ RefPtr<API::Navigation> WebPageProxy::loadRequest(WebCore::ResourceRequest&& req
         navigation->markRequestAsFromClientInput();
 
     if (shouldForceForegroundPriorityForClientNavigation())
-        navigation->setClientNavigationActivity(protect(legacyMainFrameProcess().throttler())->foregroundActivity("Client navigation"_s));
+        setClientNavigationActivity(navigation);
 
 #if PLATFORM(COCOA)
     setLastNavigationWasAppInitiated(request);
@@ -2322,7 +2323,8 @@ RefPtr<API::Navigation> WebPageProxy::loadFile(const String& fileURLString, cons
     navigation->markRequestAsFromClientInput();
 
     if (shouldForceForegroundPriorityForClientNavigation())
-        navigation->setClientNavigationActivity(protect(legacyMainFrameProcess().throttler())->foregroundActivity("Client navigation"_s));
+        setClientNavigationActivity(navigation);
+
 
     Ref pageLoadState = internals().pageLoadState;
     auto transaction = pageLoadState->transaction();
@@ -2384,7 +2386,8 @@ RefPtr<API::Navigation> WebPageProxy::loadData(Ref<WebCore::SharedBuffer>&& data
     navigation->markAsFromLoadData();
 
     if (shouldForceForegroundPriorityForClientNavigation())
-        navigation->setClientNavigationActivity(protect(legacyMainFrameProcess().throttler())->foregroundActivity("Client navigation"_s));
+        setClientNavigationActivity(navigation);
+
 
     loadDataWithNavigationShared(protect(legacyMainFrameProcess()), m_webPageID, navigation, WTF::move(data), type, encoding, baseURL, userData, ShouldTreatAsContinuingLoad::No, isNavigatingToAppBoundDomain(), nullptr, shouldOpenExternalURLsPolicy, SubstituteData::SessionHistoryVisibility::Hidden);
     return navigation;
@@ -2455,7 +2458,8 @@ RefPtr<API::Navigation> WebPageProxy::loadSimulatedRequest(WebCore::ResourceRequ
     Ref navigation = m_navigationState->createSimulatedLoadWithDataNavigation(legacyMainFrameProcess().coreProcessIdentifier(), ResourceRequest(simulatedRequest), makeUnique<API::SubstituteData>(Vector(data->span()), ResourceResponse(simulatedResponse), WebCore::SubstituteData::SessionHistoryVisibility::Visible), protect(backForwardList().currentItem()));
 
     if (shouldForceForegroundPriorityForClientNavigation())
-        navigation->setClientNavigationActivity(protect(legacyMainFrameProcess().throttler())->foregroundActivity("Client navigation"_s));
+        setClientNavigationActivity(navigation);
+
 
     Ref pageLoadState = internals().pageLoadState;
     auto transaction = pageLoadState->transaction();
@@ -2626,7 +2630,8 @@ RefPtr<API::Navigation> WebPageProxy::reload(OptionSet<WebCore::ReloadOption> op
             process->startResponsivenessTimer();
 
             if (weakThis->shouldForceForegroundPriorityForClientNavigation())
-                navigation->setClientNavigationActivity(protect(process->throttler())->foregroundActivity("Client reload"_s));
+                weakThis->setClientNavigationActivity(navigation);
+
 
 #if ENABLE(SPEECH_SYNTHESIS)
             weakThis->resetSpeechSynthesizer();
@@ -7658,7 +7663,7 @@ void WebPageProxy::didFailProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& p
         protectedPageLoadState->didFailProvisionalLoad(transaction);
         protectedPageClient->didFailProvisionalLoadForMainFrame();
         if (navigation)
-            navigation->setClientNavigationActivity(nullptr);
+            navigation->setClientNavigationActivity({ });
 
         callLoadCompletionHandlersIfNecessary(false);
     }
@@ -8186,7 +8191,7 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
         protectedPageClient->didFinishNavigation(navigation.get());
 
         if (navigation)
-            navigation->setClientNavigationActivity(nullptr);
+            navigation->setClientNavigationActivity({ });
 
         resetRecentCrashCountSoon();
 
@@ -8262,7 +8267,7 @@ void WebPageProxy::didFailLoadForFrame(IPC::Connection& connection, FrameIdentif
         reportPageLoadResult(error);
         protectedPageClient->didFailNavigation(navigation.get());
         if (navigation)
-            navigation->setClientNavigationActivity(nullptr);
+            navigation->setClientNavigationActivity({ });
 
         callLoadCompletionHandlersIfNecessary(false);
     }
@@ -16599,6 +16604,10 @@ bool WebPageProxy::shouldForceForegroundPriorityForClientNavigation() const
 {
     return false;
 }
+
+void WebPageProxy::setClientNavigationActivity(API::Navigation&)
+{
+}
 #endif
 
 void WebPageProxy::getProcessDisplayName(CompletionHandler<void(String&&)>&& completionHandler)
@@ -17982,6 +17991,39 @@ void WebPageProxy::takeActivitiesOnRemotePage(RemotePageProxy& remotePage)
 
     if (hasValidMainFrameNetworkActivity())
         remotePage.processActivityState().takeNetworkActivity();
+}
+
+void WebPageProxy::didCreateRemotePage(RemotePageProxy& remotePage)
+{
+    internals().didAddActivityTarget(remotePage.process());
+}
+
+void WebPageProxy::willDestroyRemotePage(RemotePageProxy& remotePage)
+{
+    internals().didRemoveActivityTarget(remotePage.process());
+}
+
+ProcessActivityGroupContext& WebPageProxy::activityGroupContext()
+{
+    return internals();
+}
+
+Vector<RefPtr<WebProcessProxy>> WebPageProxy::Internals::activityTargets()
+{
+    Vector<RefPtr<WebProcessProxy>> targets;
+
+    Ref protectedPage = page;
+
+    Ref process = protectedPage->siteIsolatedProcess();
+    targets.append(process);
+
+    Ref group = protectedPage->browsingContextGroup();
+    group->forEachRemotePage(protectedPage, [&](auto& remotePageProxy) {
+        RefPtr process = remotePageProxy.process();
+        targets.append(process);
+    });
+
+    return targets;
 }
 
 UniqueRef<TextExtractionAssertionScope> WebPageProxy::createTextExtractionAssertionScope()
