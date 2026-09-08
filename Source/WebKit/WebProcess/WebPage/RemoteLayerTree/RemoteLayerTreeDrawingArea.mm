@@ -550,7 +550,27 @@ void RemoteLayerTreeDrawingArea::dispatchAfterEnsuringDrawing(IPC::AsyncReplyID 
 
 void RemoteLayerTreeDrawingArea::adoptLayersFromDrawingArea(DrawingArea& oldDrawingArea)
 {
-    m_remoteLayerTreeContext->adoptLayersFromContext(downcast<RemoteLayerTreeDrawingArea>(oldDrawingArea).m_remoteLayerTreeContext);
+    auto& oldRemoteDrawingArea = downcast<RemoteLayerTreeDrawingArea>(oldDrawingArea);
+    m_remoteLayerTreeContext->adoptLayersFromContext(oldRemoteDrawingArea.m_remoteLayerTreeContext);
+    bool adopted = false;
+    for (auto& oldRootLayer : oldRemoteDrawingArea.m_rootLayers) {
+        if (!oldRootLayer.contentLayer && !oldRootLayer.viewOverlayRootLayer)
+            continue;
+        if (auto* rootLayerInfo = rootLayerInfoWithFrameIdentifier(oldRootLayer.frameID)) {
+            if (!rootLayerInfo->contentLayer && oldRootLayer.contentLayer) {
+                rootLayerInfo->contentLayer = WTF::move(oldRootLayer.contentLayer);
+                adopted = true;
+            }
+            if (!rootLayerInfo->viewOverlayRootLayer && oldRootLayer.viewOverlayRootLayer) {
+                rootLayerInfo->viewOverlayRootLayer = WTF::move(oldRootLayer.viewOverlayRootLayer);
+                adopted = true;
+            }
+        }
+    }
+    if (adopted) {
+        updateRootLayers();
+        triggerRenderingUpdate();
+    }
 }
 
 void RemoteLayerTreeDrawingArea::scheduleRenderingUpdateTimerFired()
