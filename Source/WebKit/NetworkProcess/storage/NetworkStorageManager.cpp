@@ -805,6 +805,8 @@ CheckedRef<OriginStorageManager> NetworkStorageManager::originStorageManager(con
     if (shouldWriteOriginFile == ShouldWriteOriginFile::Yes)
         writeOriginToFileIfNecessary(origin, shouldUpdateOriginAccessTime);
 
+    m_originDirectories.set(origin, originStorageManager->path());
+
     return originStorageManager;
 }
 
@@ -2891,6 +2893,11 @@ void NetworkStorageManager::queryCacheStorage(WebCore::ClientOrigin&& origin, We
 
         cacheStorageManager->query(WTF::move(options), WTF::move(cacheName), WTF::move(callback));
     });
+}
+
+String NetworkStorageManager::pathForOrigin(const WebCore::ClientOrigin& origin) const
+{
+    return m_originDirectories.get(origin);
 }
 
 } // namespace WebKit

@@ -27,6 +27,7 @@
 #include "NetworkConnectionToWebProcess.h"
 
 #include "BlobDataFileReferenceWithSandboxExtension.h"
+#include "FormDataReference.h"
 #include "LogInitialization.h"
 #include "Logging.h"
 #include "NetworkBroadcastChannelRegistry.h"
@@ -615,7 +616,9 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
 
     CONNECTION_RELEASE_LOG(Loading, "scheduleResourceLoad: (parentPID=%d, pageProxyID=%" PRIu64 ", webPageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 ", existingLoaderToResume=%" PRIu64 ")", loadParameters.parentPID, loadParameters.webPageProxyID.toUInt64(), loadParameters.webPageID.toUInt64(), loadParameters.webFrameID.toUInt64(), loadParameters.identifier ? loadParameters.identifier->toUInt64() : 0, existingLoaderToResume ? existingLoaderToResume->toUInt64() : 0);
 
-    if (CheckedPtr session = networkSession()) {
+    CheckedPtr session = networkSession();
+
+    if (session) {
         Ref server = session->ensureSWServer();
         auto topOrigin = loadParameters.topOriginForServiceWorkers(loadParameters.request.url());
         if (!server->isImportCompletedForOrigin(topOrigin)) {
@@ -634,6 +637,22 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
     MESSAGE_CHECK(identifier);
     RELEASE_ASSERT(RunLoop::isMain());
     ASSERT(!m_networkResourceLoaders.contains(*identifier));
+
+    RefPtr formData = loadParameters.request.httpBody();
+
+    if (formData) {
+        RefPtr topOrigin = loadParameters.topOrigin;
+        RefPtr sourceOrigin = loadParameters.sourceOrigin;
+        WebCore::ClientOrigin clientOrigin { topOrigin->data(), sourceOrigin->data() };
+        String pathForOrigin;
+
+        if (session)
+            session->storageManager().pathForOrigin(clientOrigin);
+        if (!IPC::FormDataReference::validate(*formData, pathForOrigin)) {
+            RELEASE_LOG_ERROR(Loading, "Form validation failed");
+            return;
+        }
+    }
 
     if (existingLoaderToResume) {
         if (CheckedPtr session = networkSession()) {
@@ -668,7 +687,6 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
     }
 
     Ref loader = m_networkResourceLoaders.add(*identifier, NetworkResourceLoader::create(WTF::move(loadParameters), *this)).iterator->value;
-
     loader->startWithServiceWorker();
 }
 
